@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
       left.textContent = `${log.time || ''} [${log.method || 'GET'}]`;
 
       const right = document.createElement('span');
-      right.textContent = log.detail || log.type || '';
+      right.textContent = log.type && log.detail ? `[${log.type}] ${log.detail}` : (log.detail || log.type || '');
 
       row.appendChild(left);
       row.appendChild(right);
