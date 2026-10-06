@@ -11,20 +11,11 @@
     maxRetries: 10
   };
 
-  let currentSettings = { ...defaultSettings };
   let countdownTimer = null;
   let remainingSeconds = 3;
   let totalSeconds = 3;
   let isPaused = false;
   let hasHandledTimeout = false;
-
-  if (chrome.storage && chrome.storage.local) {
-    chrome.storage.local.get(['enabled', 'delaySeconds', 'maxRetries'], (res) => {
-      if (res.enabled !== undefined) currentSettings.enabled = res.enabled;
-      if (res.delaySeconds !== undefined) currentSettings.delaySeconds = Number(res.delaySeconds) || 3;
-      if (res.maxRetries !== undefined) currentSettings.maxRetries = Number(res.maxRetries) || 10;
-    });
-  }
 
   function captureFormSubmission(event) {
     const form = event.target;
@@ -40,6 +31,7 @@
         for (let i = 0; i < elements.length; i++) {
           const el = elements[i];
           if (!el.name || el.disabled) continue;
+          if (el.type === 'button' || el.type === 'reset' || el.type === 'file' || el.type === 'image') continue;
 
           if (el.type === 'checkbox' || el.type === 'radio') {
             if (el.checked) {
@@ -142,7 +134,7 @@
       if (isPaused) {
         pauseBtn.textContent = '再開';
         clearInterval(countdownTimer);
-        if (detailEl) detailEl.textContent = '自動再送信: 一時停止中';
+        if (detailEl) detailEl.textContent = '一時停止中';
       } else {
         pauseBtn.textContent = '一時停止';
         if (detailEl) detailEl.textContent = `試行 ${retryCount}回目 / 待機中`;
@@ -245,7 +237,7 @@
           const banner = document.createElement('div');
           banner.id = 'ipa-reloader-banner';
           banner.innerHTML = `
-            <div class="ipa-notice">
+            <div class="ipa-notice" role="alert">
               <div class="ipa-notice-content">
                 <div class="ipa-info-cell">
                   <div class="ipa-info-title">上限回数到達 (${maxRetries}回)</div>
@@ -293,6 +285,7 @@
 
       } else {
         sessionStorage.removeItem(STORAGE_KEY_RETRY_COUNT);
+        sessionStorage.removeItem(STORAGE_KEY_FORM);
       }
     });
   }

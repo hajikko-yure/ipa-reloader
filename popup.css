@@ -294,6 +294,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   font-family: ui-monospace, "SF Mono", Consolas, monospace;
   font-size: 11px;
   padding: 8px;
+  user-select: text;
 }
 
 .log-table::-webkit-scrollbar {

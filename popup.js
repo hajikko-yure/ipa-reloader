@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleEnabled.checked = enabled;
     updateStatusBadge(enabled);
 
-    const delay = res.delaySeconds !== undefined ? Number(res.delaySeconds) : 3;
+    const parsedDelay = Number(res.delaySeconds);
+    const delay = Number.isFinite(parsedDelay) ? parsedDelay : 3;
     delayRange.value = delay;
     delayVal.textContent = `${delay}秒`;
 
