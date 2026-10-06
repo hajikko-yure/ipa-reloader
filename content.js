@@ -16,6 +16,7 @@
   let remainingSeconds = 3;
   let totalSeconds = 3;
   let isPaused = false;
+  let hasHandledTimeout = false;
 
   if (chrome.storage && chrome.storage.local) {
     chrome.storage.local.get(['enabled', 'delaySeconds', 'maxRetries'], (res) => {
@@ -83,10 +84,11 @@
     const is502or503 = lowerText.includes('502 bad gateway') || lowerText.includes('503 service unavailable');
     const isGenericGateway = lowerText.includes('gateway timeout') || lowerText.includes('gateway time-out');
 
-    const isShortTimeoutText = text.length < 300 && (
-      lowerText.includes('timeout') ||
-      lowerText.includes('time-out') ||
-      lowerText.includes('timed out')
+    const isSessionNotice = lowerText.includes('session timeout') || lowerText.includes('セッションタイムアウト');
+    const isShortTimeoutText = !isSessionNotice && text.length < 300 && (
+      lowerText.includes('request timeout') ||
+      lowerText.includes('timed out') ||
+      lowerText.includes('time-out')
     );
 
     const isCongestion = (lowerText.includes('混雑') && lowerText.includes('時間をおいて')) ||
@@ -128,6 +130,7 @@
     document.documentElement.appendChild(banner);
 
     document.getElementById('ipa-retry-now-btn').addEventListener('click', () => {
+      clearInterval(countdownTimer);
       executeRetry(isPost, targetUrl);
     });
 
@@ -176,8 +179,8 @@
   }
 
   function executeRetry(isPost, targetUrl) {
-    const countEl = document.querySelector('.ipa-banner-desc');
-    if (countEl) countEl.textContent = '再送信中...';
+    const detailEl = document.querySelector('.ipa-info-detail');
+    if (detailEl) detailEl.textContent = '再送信中...';
 
     if (isPost) {
       try {
@@ -203,6 +206,8 @@
         }
       } catch (e) {
         console.error('[IPA Reloader] POST再送信の生成に失敗:', e);
+        if (detailEl) detailEl.textContent = '再送信エラー（手動で再試行してください）';
+        return;
       }
     }
 
@@ -210,7 +215,11 @@
   }
 
   function inspectAndHandlePage() {
+    if (hasHandledTimeout) return;
+
     chrome.storage.local.get(['enabled', 'delaySeconds', 'maxRetries'], (res) => {
+      if (hasHandledTimeout) return;
+
       const enabled = res.enabled !== undefined ? res.enabled : defaultSettings.enabled;
       const delay = Number(res.delaySeconds) || defaultSettings.delaySeconds;
       const maxRetries = Number(res.maxRetries) || defaultSettings.maxRetries;
@@ -220,7 +229,9 @@
       const isTimeout = detectTimeout();
 
       if (isTimeout) {
-        let retryCount = Number(sessionStorage.getItem(STORAGE_KEY_RETRY_COUNT) || '0') + 1;
+        hasHandledTimeout = true;
+        const rawCount = parseInt(sessionStorage.getItem(STORAGE_KEY_RETRY_COUNT) || '0', 10);
+        const retryCount = (Number.isNaN(rawCount) ? 0 : rawCount) + 1;
         sessionStorage.setItem(STORAGE_KEY_RETRY_COUNT, String(retryCount));
 
         if (maxRetries > 0 && retryCount > maxRetries) {
@@ -274,7 +285,6 @@
         } catch (e) {}
 
       } else {
-        sessionStorage.removeItem(STORAGE_KEY_FORM);
         sessionStorage.removeItem(STORAGE_KEY_RETRY_COUNT);
       }
     });
@@ -286,9 +296,8 @@
     inspectAndHandlePage();
   }
 
-  // 504のtext/plain応答ではDOMContentLoadedが早いためloadでもフォールバック判定
   window.addEventListener('load', () => {
-    if (!document.getElementById('ipa-reloader-banner')) {
+    if (!hasHandledTimeout && !document.getElementById('ipa-reloader-banner')) {
       inspectAndHandlePage();
     }
   });

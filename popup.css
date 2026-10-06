@@ -6,7 +6,7 @@
   --border-focus: #475569;
   --text-main: #f8fafc;
   --text-sub: #94a3b8;
-  --text-dim: #64748b;
+  --text-dim: #94a3b8;
   --accent: #3b82f6;
   --accent-hover: #2563eb;
   --active-bg: rgba(16, 185, 129, 0.15);
@@ -28,7 +28,7 @@ body {
   width: 320px;
   background: var(--bg-primary);
   color: var(--text-main);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "BIZ UDPGothic", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Yu Gothic", "Hiragino Sans", sans-serif;
   font-size: 13px;
   line-height: 1.5;
   user-select: none;
@@ -331,4 +331,12 @@ input[type="range"]::-webkit-slider-thumb:hover {
   margin-top: 12px;
   padding-top: 10px;
   border-top: 1px solid var(--border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .power-track,
+  .power-track::before,
+  input[type="range"]::-webkit-slider-thumb {
+    transition: none;
+  }
 }

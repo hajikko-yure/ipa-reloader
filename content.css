@@ -3,13 +3,14 @@
   top: 20px;
   right: 20px;
   z-index: 2147483647;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "BIZ UDPGothic", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Yu Gothic", "Hiragino Sans", sans-serif;
   user-select: none;
   -webkit-font-smoothing: antialiased;
 }
 
 .ipa-notice {
   width: 380px;
+  max-width: calc(100vw - 32px);
   background: #0f172a;
   border: 1px solid #334155;
   border-radius: 10px;
@@ -118,7 +119,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ipa-gauge-bar {
+  .ipa-gauge-bar,
+  .ipa-btn-send,
+  .ipa-btn-hold {
     transition: none;
   }
 }
