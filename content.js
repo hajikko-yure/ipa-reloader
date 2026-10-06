@@ -73,7 +73,8 @@
   window.addEventListener('submit', captureFormSubmission, true);
 
   function detectTimeout() {
-    const text = (document.body ? document.body.innerText : document.documentElement.innerText || '').trim();
+    const rawText = document.body?.innerText || document.documentElement?.innerText || '';
+    const text = rawText.trim();
     const title = (document.title || '').trim();
     const lowerText = text.toLowerCase();
     const lowerTitle = title.toLowerCase();
@@ -214,15 +215,21 @@
     window.location.reload();
   }
 
+  let isInspecting = false;
+
   function inspectAndHandlePage() {
-    if (hasHandledTimeout) return;
+    if (hasHandledTimeout || isInspecting) return;
+    isInspecting = true;
 
     chrome.storage.local.get(['enabled', 'delaySeconds', 'maxRetries'], (res) => {
+      isInspecting = false;
       if (hasHandledTimeout) return;
 
       const enabled = res.enabled !== undefined ? res.enabled : defaultSettings.enabled;
-      const delay = Number(res.delaySeconds) || defaultSettings.delaySeconds;
-      const maxRetries = Number(res.maxRetries) || defaultSettings.maxRetries;
+      const rawDelay = Number(res.delaySeconds);
+      const delay = Number.isFinite(rawDelay) ? rawDelay : defaultSettings.delaySeconds;
+      const rawMax = Number(res.maxRetries);
+      const maxRetries = Number.isFinite(rawMax) ? rawMax : defaultSettings.maxRetries;
 
       if (!enabled) return;
 

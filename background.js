@@ -62,7 +62,8 @@ chrome.webNavigation.onErrorOccurred.addListener((details) => {
   chrome.storage.local.get(['enabled', 'delaySeconds', 'maxRetries'], (res) => {
     if (res.enabled === false) return;
 
-    const maxRetries = Number(res.maxRetries) ?? DEFAULT_SETTINGS.maxRetries;
+    const rawMaxRetries = Number(res.maxRetries);
+    const maxRetries = Number.isFinite(rawMaxRetries) ? rawMaxRetries : DEFAULT_SETTINGS.maxRetries;
     const currentRetries = tabRetries.get(details.tabId) || 0;
 
     if (maxRetries > 0 && currentRetries >= maxRetries) {
@@ -72,7 +73,8 @@ chrome.webNavigation.onErrorOccurred.addListener((details) => {
 
     tabRetries.set(details.tabId, currentRetries + 1);
 
-    const delay = (Number(res.delaySeconds) || DEFAULT_SETTINGS.delaySeconds) * 1000;
+    const rawDelay = Number(res.delaySeconds);
+    const delay = (Number.isFinite(rawDelay) ? rawDelay : DEFAULT_SETTINGS.delaySeconds) * 1000;
     const errorText = details.error || '通信エラー';
 
     addLogEntry({
