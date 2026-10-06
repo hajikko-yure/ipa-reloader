@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>IPA Reloader</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="panel">
+    <header class="panel-head">
+      <div class="title-group">
+        <img src="icons/icon48.png" alt="" class="app-icon">
+        <h1 class="app-title">IPA Reloader</h1>
+        <span class="host-label">*.ipa.go.jp</span>
+      </div>
+      <label class="power-switch">
+        <input type="checkbox" id="toggle-enabled" checked>
+        <span class="power-track"></span>
+      </label>
+    </header>
+
+    <div class="state-bar">
+      <span class="state-caption">稼働状況</span>
+      <span id="status-badge" class="state-value active">自動再送: 有効</span>
+    </div>
+
+    <section class="controls">
+      <div class="control-row">
+        <label for="delay-range" class="control-label">再送待機</label>
+        <div class="slider-field">
+          <div class="slider-meter">
+            <input type="range" id="delay-range" min="1" max="10" value="3" step="1">
+            <span id="delay-val" class="meter-readout">3秒</span>
+          </div>
+          <div class="scale-marks">
+            <span>1s</span>
+            <span class="mark-optimum">推奨 3-5s</span>
+            <span>10s</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-row">
+        <label for="max-retries" class="control-label">上限回数</label>
+        <select id="max-retries" class="select-menu">
+          <option value="5">5回</option>
+          <option value="10" selected>10回（標準）</option>
+          <option value="20">20回</option>
+          <option value="0">無制限</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="log-section">
+      <div class="log-head">
+        <span class="section-heading">通信履歴</span>
+        <button id="clear-logs-btn" class="log-action" type="button">履歴消去</button>
+      </div>
+      <div id="logs-container" class="log-table">
+        <div class="log-empty">待機中（検知なし）</div>
+      </div>
+    </section>
+
+    <footer class="panel-foot">
+      <span>Version 1.6.0</span>
+      <span>CBT申込用</span>
+    </footer>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>
